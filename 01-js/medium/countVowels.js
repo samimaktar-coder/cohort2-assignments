@@ -6,7 +6,19 @@
 */
 
 function countVowels(str) {
-    // Your code here
+  // Your code here
+  let vowelCount = 0;
+  let vowels = ['a', 'e', 'i', 'o', 'u'];
+  for (let i = 0; i < str.length; i++) {
+    let letter = str[i].toLowerCase();
+    if (vowels.includes(letter)) {
+      vowelCount++;
+    }
+  }
+  return vowelCount;
 }
+
+let ans = countVowels('OpenAI');
+console.log(ans);
 
 module.exports = countVowels;
