@@ -9,5 +9,3 @@ function wait(n) {
         }, n * 1000);
     });
 }
-
-wait(2).then(data => console.log(data));
