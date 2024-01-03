@@ -39,11 +39,73 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  
-  const app = express();
-  
-  app.use(bodyParser.json());
-  
-  module.exports = app;
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+app.use(bodyParser.json());
+
+let port = 1234;
+let todos = [];
+
+
+app.get('/todos', async (req, res) => {
+  res.status(200).json(todos);
+});
+
+
+app.get('/todos/:id', (req, res) => {
+  let todoId = Number(req.params.id);
+  let todo = todos.find(item => item.id === parseInt(todoId));
+
+  if (todo) {
+    res.status(200).json(todo);
+  } else {
+    res.status(404).send("Please enter a valid Id.");
+  }
+});
+
+
+app.post('/todos', (req, res) => {
+  let data = req.body;
+
+  todos.push({
+    id: Math.floor(Math.random() * 100000),
+    title: data.title,
+    description: data.description
+  });
+  res.status(201).send('Task added successfully');
+});
+
+app.put('/todos/:id', (req, res) => {
+  let todoId = Number(req.params.id);
+  let todoIndex = todos.findIndex(item => item.id === todoId);
+  let data = req.body;
+  if (todoIndex > -1) {
+    todos[todoIndex].title = data.title;
+    todos[todoIndex].description = data.description;
+    res.status(200).send('Task updated successfully');
+  } else {
+    res.status(404).send('Please enter valid Id.');
+  }
+});
+
+app.delete('/todos/:id', (req, res) => {
+  let todoId = Number(req.params.id);
+  let todoIndex = todos.findIndex(item => item.id === todoId);
+  if (todoIndex > -1) {
+    todos.splice(todoIndex, 1);
+    res.status(200).send('Task delted successfully');
+  } else {
+    res.status(404).send('Not found any task in this id');
+  }
+});
+
+app.use((req, res) => {
+  res.status(404).send('Route not defined');
+});
+
+
+
+app.listen(port);
+module.exports = app;
