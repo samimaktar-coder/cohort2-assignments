@@ -42,6 +42,8 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const fs = require("fs");
+
 const app = express();
 app.use(bodyParser.json());
 
@@ -50,55 +52,83 @@ let todos = [];
 
 
 app.get('/todos', async (req, res) => {
-  res.status(200).json(todos);
+  fs.readFile('todos.json', 'utf-8', (err, data) => {
+    if (err) res.status(404).send('Something went wrong');
+    res.status(200).send(JSON.parse(data));
+  });
 });
 
 
 app.get('/todos/:id', (req, res) => {
   let todoId = Number(req.params.id);
-  let todo = todos.find(item => item.id === parseInt(todoId));
+  fs.readFile('todos.json', 'utf-8', (err, data) => {
+    let todos = JSON.parse(data);
+    let todo = todos.find(item => item.id === parseInt(todoId));
+    if (todo) {
+      res.status(200).json(todo);
+    } else {
+      res.status(404).send(err);
+    }
+  });
 
-  if (todo) {
-    res.status(200).json(todo);
-  } else {
-    res.status(404).send("Please enter a valid Id.");
-  }
+
 });
 
 
 app.post('/todos', (req, res) => {
   let data = req.body;
-
-  todos.push({
+  let newTodo = {
     id: Math.floor(Math.random() * 100000),
     title: data.title,
     description: data.description
+  };
+
+  fs.readFile('todos.json', 'utf-8', (err, data) => {
+    let todos = JSON.parse(data);
+    todos.push(newTodo);
+    fs.writeFile('todos.json', JSON.stringify(todos), err => {
+      res.status(404).send('Something went wrong');
+    });
   });
+
   res.status(201).send('Task added successfully');
 });
 
 app.put('/todos/:id', (req, res) => {
   let todoId = Number(req.params.id);
-  let todoIndex = todos.findIndex(item => item.id === todoId);
-  let data = req.body;
-  if (todoIndex > -1) {
-    todos[todoIndex].title = data.title;
-    todos[todoIndex].description = data.description;
-    res.status(200).send('Task updated successfully');
-  } else {
-    res.status(404).send('Please enter valid Id.');
-  }
+  let bodyData = req.body;
+  fs.readFile('todos.json', 'utf-8', (err, data) => {
+    let todos = JSON.parse(data);
+    let todoIndex = todos.findIndex(item => item.id === todoId);
+    if (todoIndex > -1) {
+      todos[todoIndex].title = bodyData.title;
+      todos[todoIndex].description = bodyData.description;
+      fs.writeFile('todos.json', JSON.stringify(todos), (err) => {
+        throw err;
+      });
+      res.status(200).send('Task updated successfully');
+    } else {
+      res.status(404).send(err);
+    }
+  });
+
 });
 
 app.delete('/todos/:id', (req, res) => {
   let todoId = Number(req.params.id);
-  let todoIndex = todos.findIndex(item => item.id === todoId);
-  if (todoIndex > -1) {
-    todos.splice(todoIndex, 1);
-    res.status(200).send('Task delted successfully');
-  } else {
-    res.status(404).send('Not found any task in this id');
-  }
+  fs.readFile('todos.json', 'utf-8', (err, data) => {
+    let todos = JSON.parse(data);
+    let todoIndex = todos.findIndex(item => item.id === todoId);
+    if (todoIndex > -1) {
+      todos.splice(todoIndex, 1);
+      fs.writeFile('todos.json', JSON.stringify(todos), (err) => {
+        throw err;
+      });
+      res.status(200).send('Task delted successfully');
+    } else {
+      res.status(404).send('Not found any task in this id');
+    }
+  });
 });
 
 app.use((req, res) => {
