@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const {JWT_SECRET} = require("../config");
+const { JWT_SECRET } = require("../../config");
 
 // Middleware for handling auth
 function adminMiddleware(req, res, next) {
@@ -13,14 +13,14 @@ function adminMiddleware(req, res, next) {
         } else {
             res.status(403).json({
                 msg: "You are not authenticated"
-            })
+            });
         }
-    } catch(e) {
+    } catch (e) {
         res.json({
             msg: "Incorrect inputs"
-        })
+        });
     }
-    
+
 }
 
 module.exports = adminMiddleware;

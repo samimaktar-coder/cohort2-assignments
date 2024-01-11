@@ -48,8 +48,6 @@ const app = express();
 app.use(bodyParser.json());
 
 let port = 1234;
-let todos = [];
-
 
 app.get('/todos', async (req, res) => {
   fs.readFile('todos.json', 'utf-8', (err, data) => {
@@ -70,8 +68,6 @@ app.get('/todos/:id', (req, res) => {
       res.status(404).send(err);
     }
   });
-
-
 });
 
 
