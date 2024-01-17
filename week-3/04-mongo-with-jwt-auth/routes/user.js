@@ -22,7 +22,7 @@ router.post('/signin', async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
 
-    const user = await User.find({ username });
+    const user = await User.find({ username, password });
 
     if (user) {
         const token = jwt.sign({ username }, JWT_SECRET);
